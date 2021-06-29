@@ -2,6 +2,8 @@ package org.apache.isis.applib.services.iactnlayer;
 
 import java.util.concurrent.Callable;
 
+import org.apache.isis.applib.services.user.UserMemento;
+
 import lombok.NonNull;
 
 /**
