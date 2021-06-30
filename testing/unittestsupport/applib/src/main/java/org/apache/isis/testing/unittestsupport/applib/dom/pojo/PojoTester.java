@@ -51,7 +51,7 @@ import lombok.val;
 /**
  * @since 2.0 {@index}
  */
-public final class PojoTester {
+public class PojoTester {
 
 	public static class DatumFactory<T> {
 		private Class<T> type;
@@ -75,14 +75,14 @@ public final class PojoTester {
 		}
 	}
 
-   public static PojoTester create() {
+    public static PojoTester create() {
         return new PojoTester();
    }
 
 	private final Map<Class<?>, DatumFactory<?>> dataByType = new HashMap<>();
 	private final AtomicInteger counter = new AtomicInteger();
 
-	private PojoTester() {
+	protected PojoTester() {
 
         DatumFactory<Boolean> booleanDatumFactory = new DatumFactory<Boolean>(Boolean.class) {
 			@Override
@@ -277,6 +277,14 @@ public final class PojoTester {
 	public <T> PojoTester usingData(DatumFactory<T> factory) {
 		dataByType.put(factory.getType(), factory);
 		return this;
+	}
+
+	public <T> PojoTester usingDataForBean(Class<T> compileAndRuntimeType) {
+		return usingData(DataForBean.beans(compileAndRuntimeType));
+	}
+
+	public <T> PojoTester usingDataForBean(Class<T> compileTimeType, Class<T> runtimeType) {
+		return usingData(DataForBean.beans(compileTimeType, runtimeType));
 	}
 
 	public void exercise(Object bean) {
