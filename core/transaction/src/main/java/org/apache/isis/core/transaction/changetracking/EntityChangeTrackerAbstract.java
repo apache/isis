@@ -16,21 +16,29 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.apache.isis.core.transaction;
+package org.apache.isis.core.transaction.changetracking;
 
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
+import java.util.Map;
 
-import org.apache.isis.core.transaction.changetracking.EntityChangeTrackerDefault2573;
-import org.apache.isis.core.transaction.changetracking.events.TimestampService;
+import org.apache.isis.applib.annotation.EntityChangeKind;
+import org.apache.isis.applib.services.bookmark.Bookmark;
+import org.apache.isis.applib.services.iactn.Interaction;
+import org.apache.isis.applib.services.metrics.MetricsService;
 
-@Configuration
-@Import({
-        // @Service's
-        TimestampService.class,
-        EntityChangeTrackerDefault2573.class,
-})
-public class IsisModuleCoreTransaction {
+abstract class EntityChangeTrackerAbstract
+implements
+    MetricsService,
+    EntityChangeTrackerWithPreValue,
+    HasEnlistedEntityPropertyChanges,
+    HasEnlistedEntityChanges {
 
+    @Deprecated // intermediate refactoring
+    abstract int numberPropertyChangeRecordsThenLock();
+
+    @Deprecated // intermediate refactoring
+    abstract Map<Bookmark, EntityChangeKind> getChangeKindByEnlistedAdapter();
+
+    @Deprecated // intermediate refactoring
+    abstract Interaction currentInteraction();
 
 }
