@@ -40,14 +40,12 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoderJwkSupport;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.web.client.RestTemplate;
 
 import static org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI;
 
 import org.apache.isis.core.runtimeservices.IsisModuleCoreRuntimeServices;
 import org.apache.isis.core.security.authentication.login.LoginSuccessHandler;
 import org.apache.isis.core.webapp.IsisModuleCoreWebapp;
-import org.apache.isis.security.keycloak.handler.KeycloakLogoutHandler;
 import org.apache.isis.security.keycloak.handler.LogoutHandlerForKeycloak;
 import org.apache.isis.security.keycloak.services.KeycloakOauth2UserService;
 import org.apache.isis.security.spring.IsisModuleSecuritySpring;
@@ -80,7 +78,6 @@ public class IsisModuleSecurityKeycloak {
     public WebSecurityConfigurerAdapter webSecurityConfigurer(
             @Value("${kc.realm}") String realm,
             KeycloakOauth2UserService keycloakOidcUserService,
-            // KeycloakLogoutHandler keycloakLogoutHandler,
             List<LoginSuccessHandler> loginSuccessHandlers,
             List<LogoutHandler> logoutHandlers
             ) {
@@ -98,9 +95,11 @@ public class IsisModuleSecurityKeycloak {
                             .anyRequest().authenticated()
                         .and()
 
-                        // Propagate logouts via /logout to Keycloak
+                        // responsibility to propagate logout to Keycloak is performed by
+                        // LogoutHandlerForKeycloak (called by Isis' LogoutMenu, not by Spring)
+                        // this is to ensure that Isis can invalidate the http session eagerly and not preserve it in
+                        // the SecurityContextPersistenceFilter (which uses http session to do its work)
                         .logout()
-//                            .addLogoutHandler(keycloakLogoutHandler)
                             .logoutRequestMatcher(new AntPathRequestMatcher("/logout"));
 
                 logoutHandlers.forEach(httpSecurityLogoutConfigurer::addLogoutHandler);
@@ -148,11 +147,6 @@ public class IsisModuleSecurityKeycloak {
         authoritiesMapper.setConvertToUpperCase(true);
 
         return new KeycloakOauth2UserService(jwtDecoder, authoritiesMapper);
-    }
-
-    @Bean
-    KeycloakLogoutHandler keycloakLogoutHandler() {
-        return new KeycloakLogoutHandler(new RestTemplate());
     }
 
 }
