@@ -150,6 +150,7 @@
 
 		<jsr305.version>3.0.2</jsr305.version>
 		<junit-platform.version>1.7.2</junit-platform.version>
+		<keycloak.version>14.0.0</keycloak.version>
 
 		<log4jdbc-remix.version>0.2.7</log4jdbc-remix.version>
 
@@ -1096,6 +1097,16 @@
 				<artifactId>jdo-api</artifactId>
 				<version>${jdo-api.version}</version>
 			</dependency>
+
+<!--
+			<dependency>
+				<groupId>org.keycloak.bom</groupId>
+				<artifactId>keycloak-adapter-bom</artifactId>
+				<version>${keycloak.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+-->
 
 			<dependency>
 				<groupId>net.sf.jopt-simple</groupId>

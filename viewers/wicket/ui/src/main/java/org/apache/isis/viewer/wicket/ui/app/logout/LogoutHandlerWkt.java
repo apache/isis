@@ -18,33 +18,45 @@
  */
 package org.apache.isis.viewer.wicket.ui.app.logout;
 
-import javax.inject.Inject;
-
 import org.apache.wicket.authroles.authentication.AuthenticatedWebSession;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.springframework.stereotype.Service;
 
 import org.apache.isis.applib.services.iactnlayer.InteractionLayerTracker;
+import org.apache.isis.core.config.IsisConfiguration;
 import org.apache.isis.core.interaction.session.IsisInteraction;
 import org.apache.isis.core.security.authentication.logout.LogoutHandler;
 
+import lombok.RequiredArgsConstructor;
 import lombok.val;
 
 @Service
+@RequiredArgsConstructor
 public class LogoutHandlerWkt implements LogoutHandler {
 
-    @Inject InteractionLayerTracker iInteractionLayerTracker;
+    final InteractionLayerTracker interactionLayerTracker;
+    final IsisConfiguration isisConfiguration;
 
     @Override
     public void logout() {
+
+        if(!isisConfiguration.getViewer().getWicket().getLogout().isInvalidateSessiom()) {
+            // no-op.
+            // instead, we expect that some other mechanism will invalidate the Wicket session.
+            return;
+        }
+        forceLogout();
+    }
+
+    public void forceLogout() {
 
         val currentWktSession = AuthenticatedWebSession.get();
         if(currentWktSession==null) {
             return;
         }
 
-        if(iInteractionLayerTracker.isInInteraction()) {
-            iInteractionLayerTracker.currentInteraction()
+        if(interactionLayerTracker.isInInteraction()) {
+            interactionLayerTracker.currentInteraction()
             .map(IsisInteraction.class::cast)
             .ifPresent(interaction->
                 interaction.setOnClose(currentWktSession::invalidateNow));
@@ -58,6 +70,5 @@ public class LogoutHandlerWkt implements LogoutHandler {
     public boolean isHandlingCurrentThread() {
         return RequestCycle.get()!=null;
     }
-
 
 }

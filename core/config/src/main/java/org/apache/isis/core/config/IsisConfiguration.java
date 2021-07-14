@@ -2364,6 +2364,23 @@ public class IsisConfiguration {
                 private boolean enable = false;
             }
 
+            private final Logout logout = new Logout();
+            @Data
+            public static class Logout {
+                /**
+                 * Whether the Session (Wicket's Session, usually a wrapper around {@link javax.servlet.http.HttpSession}),
+                 * should be invalidated using <code>invalidateNow</code>.
+                 *
+                 * <p>
+                 *     Normally this is the case because otherwise it wouldn't be possible to logout.  However, some
+                 *     security integrations, for example Keycloak, require the Session to be preserved in order to
+                 *     obtain the credentials to be logged out on a redirect to &quot;/logout&quot;.  In such cases,
+                 *     the integration uses a separate logout to finally invalidate the Wicket session.
+                 * </p>
+                 */
+                private boolean invalidateSessiom = true;
+            }
+
             private final RememberMe rememberMe = new RememberMe();
             @Data
             public static class RememberMe {
@@ -2519,6 +2536,29 @@ public class IsisConfiguration {
                 }
             }
 
+        }
+
+        private final Vaadin vaadin = new Vaadin();
+        @Data
+        public static class Vaadin {
+
+            private final Logout logout = new Logout();
+            @Data
+            public static class Logout {
+
+                /**
+                 * Whether the VaadinSession (Wicket's Session, usually a wrapper around {@link javax.servlet.http.HttpSession},
+                 * should be closed using <code>close</code>.
+                 *
+                 * <p>
+                 *     Normally this is the case because otherwise it wouldn't be possible to logout.  However, some
+                 *     security integrations, for example Keycloak, require the Session to be preserved in order to
+                 *     obtain the credentials to be logged out on a redirect to &quot;/logout&quot;.  In such cases,
+                 *     the integration uses a separate logout to finally invalidate the Vaadin session.
+                 * </p>
+                 */
+                private boolean invalidateSessiom = true;
+            }
         }
     }
 

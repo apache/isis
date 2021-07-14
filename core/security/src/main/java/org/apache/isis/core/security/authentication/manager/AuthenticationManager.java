@@ -113,9 +113,7 @@ public class AuthenticationManager {
             }
 
             return null;
-
         });
-
     }
 
     private String getUnusedRandomCode() {

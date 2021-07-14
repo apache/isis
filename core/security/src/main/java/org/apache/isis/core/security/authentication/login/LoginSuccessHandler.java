@@ -16,27 +16,24 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.apache.isis.core.security.authentication.logout;
+package org.apache.isis.core.security.authentication.login;
 
 /**
- * To allow viewers to close their session when a logout is requested.
+ * To allow login to be completed.
+ *
+ * <p>
+ *     Provided as a hook for some of the more sophisticated
+ *     {@link org.apache.isis.core.security.authentication.Authenticator}s
+ *     (eg keycloak) to synchronise the state of the
+ *     {@link org.apache.isis.core.security.authentication.manager.AuthenticationManager}
+ *     on successful external login.
+ * </p>
  */
-public interface LogoutHandler {
+public interface LoginSuccessHandler {
 
     /**
-     * logout from the viewer's session, such that the application user has to sign in again
+     * Indicates a successful login
      */
-    void logout();
-
-    /**
-     *
-     * @return whether this handler feels responsible for the viewer, that corresponds
-     * to the current servlet request
-     *
-     * @implNote currently the Wicket logout also triggers a Vaadin logout and vice versa;
-     * hence implementations should check whether they are called within a thread
-     * that belongs to a request cycle originating from the appropriate viewer/servlet
-     */
-    boolean isHandlingCurrentThread();
+    void onSuccess();
 
 }

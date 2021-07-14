@@ -18,31 +18,42 @@
  */
 package org.apache.isis.incubator.viewer.vaadin.ui.auth;
 
-import javax.inject.Inject;
-
 import com.vaadin.flow.server.VaadinRequest;
 import com.vaadin.flow.server.VaadinSession;
 
 import org.springframework.stereotype.Service;
 
+import org.apache.isis.core.config.IsisConfiguration;
 import org.apache.isis.core.metamodel.context.MetaModelContext;
 import org.apache.isis.core.security.authentication.logout.LogoutHandler;
 
-import lombok.val;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import lombok.val;
 
 @Service
+@RequiredArgsConstructor
 @Log4j2
 public class LogoutHandlerVaa implements LogoutHandler {
 
-    @Inject private MetaModelContext metaModelContext;
+    final MetaModelContext metaModelContext;
+    final IsisConfiguration isisConfiguration;
 
     @Override
     public void logout() {
 
+        if(!isisConfiguration.getViewer().getWicket().getLogout().isInvalidateSessiom()) {
+            // no-op.
+            // instead, we expect that some other mechanism will close the Vaadin session.
+            return;
+        }
+        forceLogout();
+    }
+
+    public void forceLogout() {
         val sessionVaa = VaadinSession.getCurrent();
         if(sessionVaa==null) {
-            return; // ignore if there is no current session
+            return;
         }
 
         AuthSessionStoreUtil.get()
@@ -54,7 +65,6 @@ public class LogoutHandlerVaa implements LogoutHandler {
         });
 
         sessionVaa.close();
-
     }
 
     @Override
