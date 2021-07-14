@@ -145,6 +145,9 @@ public class AuthenticationManager {
         if(userMemento.getAuthenticationSource().isExternal()) {
             return true;
         }
+        if(userMemento.isImpersonating()) {
+            return true;
+        }
         final String userName = userByValidationCode.get(userMemento.getAuthenticationCode());
         return authentication.getUser().isCurrentUser(userName);
     }

@@ -28,7 +28,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -47,9 +46,9 @@ import static org.springframework.security.oauth2.client.web.OAuth2Authorization
 
 import org.apache.isis.core.runtimeservices.IsisModuleCoreRuntimeServices;
 import org.apache.isis.core.security.authentication.login.LoginSuccessHandler;
-import org.apache.isis.core.security.authentication.manager.AuthenticationManager;
 import org.apache.isis.core.webapp.IsisModuleCoreWebapp;
 import org.apache.isis.security.keycloak.handler.KeycloakLogoutHandler;
+import org.apache.isis.security.keycloak.handler.LogoutHandlerForKeycloak;
 import org.apache.isis.security.keycloak.services.KeycloakOauth2UserService;
 import org.apache.isis.security.spring.IsisModuleSecuritySpring;
 
@@ -57,7 +56,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.val;
 
 /**
- * Configuration Bean to support Isis Security using Shiro.
+ * Configuration Bean to support Isis Security using Keycloak.
  *
  * @since 2.0 {@index}
  */
@@ -67,19 +66,21 @@ import lombok.val;
         IsisModuleCoreRuntimeServices.class,
         IsisModuleCoreWebapp.class,
 
+        // services
+        LogoutHandlerForKeycloak.class,
+
         // builds on top of Spring
         IsisModuleSecuritySpring.class,
 
 })
 @EnableWebSecurity
-@ComponentScan
 public class IsisModuleSecurityKeycloak {
 
     @Bean
     public WebSecurityConfigurerAdapter webSecurityConfigurer(
             @Value("${kc.realm}") String realm,
             KeycloakOauth2UserService keycloakOidcUserService,
-            KeycloakLogoutHandler keycloakLogoutHandler,
+            // KeycloakLogoutHandler keycloakLogoutHandler,
             List<LoginSuccessHandler> loginSuccessHandlers,
             List<LogoutHandler> logoutHandlers
             ) {
@@ -99,7 +100,7 @@ public class IsisModuleSecurityKeycloak {
 
                         // Propagate logouts via /logout to Keycloak
                         .logout()
-                            .addLogoutHandler(keycloakLogoutHandler)
+//                            .addLogoutHandler(keycloakLogoutHandler)
                             .logoutRequestMatcher(new AntPathRequestMatcher("/logout"));
 
                 logoutHandlers.forEach(httpSecurityLogoutConfigurer::addLogoutHandler);
@@ -121,13 +122,6 @@ public class IsisModuleSecurityKeycloak {
         };
     }
 
-    @Bean LoginSuccessHandler loginSuccessHandler(final AuthenticationManager authenticationManager) {
-        return new LoginSuccessHandler() {
-            @Override public void onSuccess() {
-
-            }
-        };
-    }
     @RequiredArgsConstructor
     public static class AuthSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
 
